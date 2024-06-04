@@ -27,7 +27,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const userCollection = client.db('tourVisor').collection('users');
+        const usersCollection = client.db('tourVisor').collection('users');
 
         //jwt related
         app.post('/jwt', async (req, res) => {
@@ -51,6 +51,36 @@ async function run() {
                 next();
             })
         }
+
+        // user related
+        app.put('/user', async (req, res) => {
+            const user = req.body;
+            const query = { email: user?.email }
+            // if user already exist
+            const isExist = await usersCollection.findOne(query)
+            if (isExist) {
+                if (user.status === 'Requested') {
+                    // if existing user tru to change his role
+                    const result = await usersCollection.updateOne(query, {
+                        $set: { status: user?.status },
+                    })
+                    return res.send(result);
+                } else {
+                    // if existing user login again
+                    return res.send(isExist);
+                }
+            }
+
+            const options = { upsert: true }
+            const updateDoc = {
+                $set: {
+                    ...user,
+                    timestamp: Date.now(),
+                },
+            }
+            const result = await usersCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
