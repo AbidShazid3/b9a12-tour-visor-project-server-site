@@ -28,6 +28,7 @@ async function run() {
         await client.connect();
 
         const usersCollection = client.db('tourVisor').collection('users');
+        const packagesCollection = client.db('tourVisor').collection('packages');
 
         //jwt related
         app.post('/jwt', async (req, res) => {
@@ -79,6 +80,12 @@ async function run() {
                 },
             }
             const result = await usersCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        })
+
+        // package related
+        app.get('/packages', async (req, res) => {
+            const result = await packagesCollection.find().toArray();
             res.send(result);
         })
 
