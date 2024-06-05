@@ -29,6 +29,7 @@ async function run() {
 
         const usersCollection = client.db('tourVisor').collection('users');
         const packagesCollection = client.db('tourVisor').collection('packages');
+        const guidesCollection = client.db('tourVisor').collection('guides');
 
         //jwt related
         app.post('/jwt', async (req, res) => {
@@ -93,6 +94,12 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await packagesCollection.findOne(query);
+            res.send(result);
+        })
+
+        // tour guides
+        app.get('/guides', async (req, res) => {
+            const result = await guidesCollection.find().toArray();
             res.send(result);
         })
 
