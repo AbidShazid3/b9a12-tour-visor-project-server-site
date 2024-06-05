@@ -30,6 +30,7 @@ async function run() {
         const usersCollection = client.db('tourVisor').collection('users');
         const packagesCollection = client.db('tourVisor').collection('packages');
         const guidesCollection = client.db('tourVisor').collection('guides');
+        const wishlistCollection = client.db('tourVisor').collection('wishlist');
 
         //jwt related
         app.post('/jwt', async (req, res) => {
@@ -109,6 +110,14 @@ async function run() {
             const result = await guidesCollection.findOne(query);
             res.send(result);
         })
+
+        // wishlist related
+        app.post('/wishlists', async (req, res) => {
+            const package = req.body;
+            const result = await wishlistCollection.insertOne(package);
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
