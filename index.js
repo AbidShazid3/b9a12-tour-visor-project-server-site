@@ -31,6 +31,7 @@ async function run() {
         const packagesCollection = client.db('tourVisor').collection('packages');
         const guidesCollection = client.db('tourVisor').collection('guides');
         const wishlistCollection = client.db('tourVisor').collection('wishlist');
+        const bookingsCollection = client.db('tourVisor').collection('bookings');
 
         //jwt related
         app.post('/jwt', async (req, res) => {
@@ -115,6 +116,13 @@ async function run() {
         app.post('/wishlists', async (req, res) => {
             const package = req.body;
             const result = await wishlistCollection.insertOne(package);
+            res.send(result);
+        })
+
+        // booking relate
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
             res.send(result);
         })
 
