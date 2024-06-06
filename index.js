@@ -93,6 +93,13 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/stories/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await storiesCollection.findOne(query);
+            res.send(result);
+        })
+
         // package related
         app.get('/packages', async (req, res) => {
             const result = await packagesCollection.find().toArray();
