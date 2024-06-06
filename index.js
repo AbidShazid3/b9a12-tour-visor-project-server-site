@@ -28,6 +28,7 @@ async function run() {
         await client.connect();
 
         const usersCollection = client.db('tourVisor').collection('users');
+        const storiesCollection = client.db('tourVisor').collection('stories');
         const packagesCollection = client.db('tourVisor').collection('packages');
         const guidesCollection = client.db('tourVisor').collection('guides');
         const wishlistCollection = client.db('tourVisor').collection('wishlist');
@@ -86,6 +87,12 @@ async function run() {
             res.send(result);
         })
 
+        // stories related
+        app.get('/stories', async (req, res) => {
+            const result = await storiesCollection.find().toArray();
+            res.send(result);
+        })
+
         // package related
         app.get('/packages', async (req, res) => {
             const result = await packagesCollection.find().toArray();
@@ -120,7 +127,7 @@ async function run() {
         })
 
         // booking relate
-        app.post('/bookings', async (req, res) => {
+        app.post('/bookings',verifyToken, async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
