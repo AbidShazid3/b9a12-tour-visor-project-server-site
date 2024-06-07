@@ -101,6 +101,12 @@ async function run() {
         })
 
         // package related
+        app.post('/package', async (req, res) => {
+            const package = req.body;
+            const result = await packagesCollection.insertOne(package);
+            res.send(result);
+        })
+
         app.get('/packages', async (req, res) => {
             const result = await packagesCollection.find().toArray();
             res.send(result);
