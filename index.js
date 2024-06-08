@@ -156,7 +156,7 @@ async function run() {
             res.send(result);
         })
 
-        app.delete('/wishlists/:id', async (req, res) => {
+        app.delete('/wishlists/:id',verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await wishlistCollection.deleteOne(query);
@@ -174,6 +174,13 @@ async function run() {
             const email = req.query.email;
             const query = { email: email }
             const result = await bookingsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.delete('/bookings/:id', verifyToken, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await bookingsCollection.deleteOne(query);
             res.send(result);
         })
 
