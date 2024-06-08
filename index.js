@@ -98,6 +98,18 @@ async function run() {
             res.send(result);
         })
 
+        //update a user role
+        app.patch('/users/update/:email', async (req, res) => {
+            const email = req.params.email
+            const user = req.body
+            const query = { email }
+            const updateDoc = {
+                $set: { ...user, timestamp: Date.now() },
+            }
+            const result = await usersCollection.updateOne(query, updateDoc)
+            res.send(result)
+        })
+
         // stories related
         app.post('/stories', verifyToken, async (req, res) => {
             const story = req.body;
@@ -139,14 +151,13 @@ async function run() {
         // tour guides
         app.post('/guides', verifyToken, async (req, res) => {
             const guide = req.body;
-            console.log(guide.email, guide.phone);
-            console.log(guide);
+
             const query = {
                 email: guide.email,
             }
             const alreadySubmitted = await guidesCollection.findOne(query);
             if (alreadySubmitted) {
-                return res.status(400).send({message: 'Already Submitted'});
+                return res.status(400).send({ message: 'Already Submitted' });
             }
 
             const result = await guidesCollection.insertOne(guide);
@@ -172,13 +183,13 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/wishlists',verifyToken, async (req, res) => {
+        app.get('/wishlists', verifyToken, async (req, res) => {
             const email = req.query.email;
             const result = await wishlistCollection.find({ email }).toArray();
             res.send(result);
         })
 
-        app.delete('/wishlists/:id',verifyToken, async (req, res) => {
+        app.delete('/wishlists/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await wishlistCollection.deleteOne(query);
@@ -186,7 +197,7 @@ async function run() {
         })
 
         // booking relate
-        app.post('/bookings',verifyToken, async (req, res) => {
+        app.post('/bookings', verifyToken, async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
