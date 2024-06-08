@@ -99,6 +99,12 @@ async function run() {
         })
 
         // stories related
+        app.post('/stories', async (req, res) => {
+            const story = req.body;
+            const result = await storiesCollection.insertOne(story);
+            res.send(result);
+        })
+
         app.get('/stories', async (req, res) => {
             const result = await storiesCollection.find().toArray();
             res.send(result);
