@@ -150,6 +150,12 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/wishlists', async (req, res) => {
+            const email = req.query.email;
+            const result = await wishlistCollection.find({ email }).toArray();
+            res.send(result);
+        })
+
         // booking relate
         app.post('/bookings',verifyToken, async (req, res) => {
             const booking = req.body;
