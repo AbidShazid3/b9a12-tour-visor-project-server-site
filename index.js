@@ -150,9 +150,16 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/wishlists', async (req, res) => {
+        app.get('/wishlists',verifyToken, async (req, res) => {
             const email = req.query.email;
             const result = await wishlistCollection.find({ email }).toArray();
+            res.send(result);
+        })
+
+        app.delete('/wishlists/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await wishlistCollection.deleteOne(query);
             res.send(result);
         })
 
