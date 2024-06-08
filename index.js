@@ -99,7 +99,7 @@ async function run() {
         })
 
         // stories related
-        app.post('/stories', async (req, res) => {
+        app.post('/stories', verifyToken, async (req, res) => {
             const story = req.body;
             const result = await storiesCollection.insertOne(story);
             res.send(result);
@@ -118,7 +118,7 @@ async function run() {
         })
 
         // package related
-        app.post('/package', async (req, res) => {
+        app.post('/package', verifyToken, async (req, res) => {
             const package = req.body;
             const result = await packagesCollection.insertOne(package);
             res.send(result);
@@ -137,6 +137,22 @@ async function run() {
         })
 
         // tour guides
+        app.post('/guides', verifyToken, async (req, res) => {
+            const guide = req.body;
+            console.log(guide.email, guide.phone);
+            console.log(guide);
+            const query = {
+                email: guide.email,
+            }
+            const alreadySubmitted = await guidesCollection.findOne(query);
+            if (alreadySubmitted) {
+                return res.status(400).send({message: 'Already Submitted'});
+            }
+
+            const result = await guidesCollection.insertOne(guide);
+            res.send(result);
+        })
+
         app.get('/guides', async (req, res) => {
             const result = await guidesCollection.find().toArray();
             res.send(result);
