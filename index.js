@@ -57,6 +57,46 @@ async function run() {
             })
         }
 
+        // verify admin middleware
+        const verifyAdmin = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const result = await usersCollection.findOne(query);
+            const isAdmin = result?.role === 'admin';
+            console.log(isAdmin);
+            if (!isAdmin) {
+                return res.status(403).send({ message: 'forbidden access!!' })
+            }
+            next();
+        }
+
+        // verify guide middleware
+        const verifyGuide = async (req, res, next) => {
+            const email = req.decoded.email;
+            const query = { email: email }
+            const result = await usersCollection.findOne(query);
+            const isGuide = result?.role === 'guide';
+            console.log(isGuide);
+            if (!isGuide) {
+                return res.status(403).send({ message: 'forbidden access!!' })
+            }
+            next();
+        }
+
+        // verify tourist middleware
+        const verifyTourist = async (req, res, next) => {
+            console.log('hello')
+            const email = req.decoded.email;
+            const query = { email: email }
+            const result = await usersCollection.findOne(query);
+            const isTourist = result?.role === 'tourist';
+            console.log(isTourist)
+            if (!isTourist) {
+                return res.status(403).send({ message: 'forbidden access!!' })
+            }
+            next();
+        }
+
         // user related
         app.get('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -64,7 +104,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyToken,verifyAdmin, async (req, res) => {
             const result = await usersCollection.find().toArray();
             res.send(result);
         })
@@ -99,7 +139,7 @@ async function run() {
         })
 
         //update a user role
-        app.patch('/users/update/:email', async (req, res) => {
+        app.patch('/users/update/:email',verifyToken, verifyAdmin, async (req, res) => {
             const email = req.params.email
             const user = req.body
             const query = { email }
@@ -111,7 +151,7 @@ async function run() {
         })
 
         // stories related
-        app.post('/stories', verifyToken, async (req, res) => {
+        app.post('/stories', verifyToken, verifyTourist, async (req, res) => {
             const story = req.body;
             const result = await storiesCollection.insertOne(story);
             res.send(result);
@@ -130,7 +170,7 @@ async function run() {
         })
 
         // package related
-        app.post('/package', verifyToken, async (req, res) => {
+        app.post('/package', verifyToken, verifyAdmin, async (req, res) => {
             const package = req.body;
             const result = await packagesCollection.insertOne(package);
             res.send(result);
@@ -149,7 +189,7 @@ async function run() {
         })
 
         // tour guides
-        app.post('/guides', verifyToken, async (req, res) => {
+        app.post('/guides', verifyToken,verifyGuide, async (req, res) => {
             const guide = req.body;
 
             const query = {
@@ -177,19 +217,19 @@ async function run() {
         })
 
         // wishlist related
-        app.post('/wishlists', async (req, res) => {
+        app.post('/wishlists',verifyToken,verifyTourist, async (req, res) => {
             const package = req.body;
             const result = await wishlistCollection.insertOne(package);
             res.send(result);
         })
 
-        app.get('/wishlists', verifyToken, async (req, res) => {
+        app.get('/wishlists', verifyToken,verifyTourist, async (req, res) => {
             const email = req.query.email;
             const result = await wishlistCollection.find({ email }).toArray();
             res.send(result);
         })
 
-        app.delete('/wishlists/:id', verifyToken, async (req, res) => {
+        app.delete('/wishlists/:id', verifyToken,verifyTourist, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await wishlistCollection.deleteOne(query);
@@ -197,31 +237,30 @@ async function run() {
         })
 
         // booking relate
-        app.post('/bookings', verifyToken, async (req, res) => {
+        app.post('/bookings', verifyToken,verifyTourist, async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
             res.send(result);
         })
 
-        app.get('/bookings', verifyToken, async (req, res) => {
+        app.get('/bookings', verifyToken,verifyTourist, async (req, res) => {
             const email = req.query.email;
             const query = { email: email }
             const result = await bookingsCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.get('/bookings/:name', async (req, res) => {
+        app.get('/bookings/:name',verifyToken,verifyGuide, async (req, res) => {
             const guideName = req.params.name;
             const query = { tourGuide: guideName }
             const result = await bookingsCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.patch('/bookings/update/:id', async (req, res) => {
+        app.patch('/bookings/update/:id',verifyToken,verifyGuide, async (req, res) => {
             const id = req.params.id;
             const booking = req.body;
             const query = { _id: new ObjectId(id) }
-            console.log(booking);
             const updateDoc = {
                 $set: { 
                     status: booking.status,
@@ -231,7 +270,7 @@ async function run() {
             res.send(result);
         })
 
-        app.delete('/bookings/:id', verifyToken, async (req, res) => {
+        app.delete('/bookings/:id', verifyToken,verifyTourist, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await bookingsCollection.deleteOne(query);
