@@ -210,6 +210,27 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/bookings/:name', async (req, res) => {
+            const guideName = req.params.name;
+            const query = { tourGuide: guideName }
+            const result = await bookingsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.patch('/bookings/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const booking = req.body;
+            const query = { _id: new ObjectId(id) }
+            console.log(booking);
+            const updateDoc = {
+                $set: { 
+                    status: booking.status,
+                },
+            }
+            const result = await bookingsCollection.updateOne(query, updateDoc);
+            res.send(result);
+        })
+
         app.delete('/bookings/:id', verifyToken, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
