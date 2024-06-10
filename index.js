@@ -104,8 +104,15 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/users', verifyToken,verifyAdmin, async (req, res) => {
-            const result = await usersCollection.find().toArray();
+        app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
+            const filter = req.query.filter;
+            const search = req.query.search;
+            console.log(filter)
+            let query = {
+                email: {$regex: search, $options: 'i'},
+            }
+            if(filter) query.role = filter
+            const result = await usersCollection.find(query).toArray();
             res.send(result);
         })
 
