@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const usersCollection = client.db('tourVisor').collection('users');
         const storiesCollection = client.db('tourVisor').collection('stories');
@@ -63,7 +63,6 @@ async function run() {
             const query = { email: email }
             const result = await usersCollection.findOne(query);
             const isAdmin = result?.role === 'admin';
-            console.log(isAdmin);
             if (!isAdmin) {
                 return res.status(403).send({ message: 'forbidden access!!' })
             }
@@ -76,7 +75,6 @@ async function run() {
             const query = { email: email }
             const result = await usersCollection.findOne(query);
             const isGuide = result?.role === 'guide';
-            console.log(isGuide);
             if (!isGuide) {
                 return res.status(403).send({ message: 'forbidden access!!' })
             }
@@ -85,12 +83,10 @@ async function run() {
 
         // verify tourist middleware
         const verifyTourist = async (req, res, next) => {
-            console.log('hello')
             const email = req.decoded.email;
             const query = { email: email }
             const result = await usersCollection.findOne(query);
             const isTourist = result?.role === 'tourist';
-            console.log(isTourist)
             if (!isTourist) {
                 return res.status(403).send({ message: 'forbidden access!!' })
             }
@@ -107,7 +103,7 @@ async function run() {
         app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
             const filter = req.query.filter;
             const search = req.query.search;
-            console.log(filter)
+
             let query = {
                 email: {$regex: search, $options: 'i'},
             }
@@ -286,7 +282,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
